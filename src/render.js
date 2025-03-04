@@ -77,54 +77,63 @@ const createList = (itemsType, state, i18next) => {
   return card;
 };
 
-const renderInvalid = ({ submit, urlInput, feedback }) => {
+const renderInvalid = () => {
+  const submit = document.querySelector('[type="submit"]');
+  const urlInput = document.querySelector('#url-input');
+  const feedback = document.querySelector('.feedback');
+
   submit.disabled = false;
   urlInput.classList.add('is-invalid');
-  feedback.classList.remove('text-success');
-  feedback.classList.remove('text-warning');
+  feedback.classList.remove('text-success', 'text-warning');
   feedback.classList.add('text-danger');
 };
 
-const renderSending = ({ submit, urlInput, feedback }, i18next) => {
+const renderSending = (i18next) => {
+  const submit = document.querySelector('[type="submit"]');
+  const urlInput = document.querySelector('#url-input');
+  const feedback = document.querySelector('.feedback');
+
   submit.disabled = true;
   urlInput.classList.remove('is-invalid');
-  feedback.classList.remove('text-danger');
-  feedback.classList.remove('text-success');
+  feedback.classList.remove('text-danger', 'text-success');
   feedback.classList.add('text-warning');
   feedback.textContent = i18next.t('status.sending');
 };
 
-const renderAdded = ({
-  submit, urlInput, feedback, form,
-}, i18next) => {
+const renderAdded = (i18next) => {
+  const submit = document.querySelector('[type="submit"]');
+  const urlInput = document.querySelector('#url-input');
+  const feedback = document.querySelector('.feedback');
+  const form = document.querySelector('.rss-form');
+
   submit.disabled = false;
   urlInput.classList.remove('is-invalid');
-  feedback.classList.remove('text-danger');
-  feedback.classList.remove('text-warning');
+  feedback.classList.remove('text-danger', 'text-warning');
   feedback.classList.add('text-success');
   feedback.textContent = i18next.t('status.success');
   form.reset();
   urlInput.focus();
 };
 
-const renderState = (elements, i18next, value) => {
+const renderState = (i18next, value) => {
   switch (value) {
     case 'invalid':
-      renderInvalid(elements);
+      renderInvalid();
       break;
     case 'sending':
-      renderSending(elements, i18next);
+      renderSending(i18next);
       break;
-    case 'added': {
-      renderAdded(elements, i18next);
+    case 'added':
+      renderAdded(i18next);
       break;
-    }
     default:
       break;
   }
 };
 
-const renderError = (state, { feedback }, i18next, error) => {
+const renderError = (state, i18next, error) => {
+  const feedback = document.querySelector('.feedback');
+
   if (error === null) {
     return;
   }
@@ -133,19 +142,25 @@ const renderError = (state, { feedback }, i18next, error) => {
   feedback.textContent = i18next.t(`errors.${state.error}`);
 };
 
-const renderFeeds = (state, { feedsList }, i18next) => {
+const renderFeeds = (state, i18next) => {
+  const feedsList = document.querySelector('.feeds');
   feedsList.innerHTML = '';
   const feeds = createList('feeds', state, i18next);
   feedsList.append(feeds);
 };
 
-const renderPosts = (state, { postsList }, i18next) => {
+const renderPosts = (state, i18next) => {
+  const postsList = document.querySelector('.posts');
   postsList.innerHTML = '';
   const posts = createList('posts', state, i18next);
   postsList.append(posts);
 };
 
-const renderDisplayedPost = (state, { modalHeader, modalBody, modalHref }, id) => {
+const renderDisplayedPost = (state, id) => {
+  const modalHeader = document.querySelector('.modal-header');
+  const modalBody = document.querySelector('.modal-body');
+  const modalHref = document.querySelector('.full-article');
+
   const posts = state.posts.filter((post) => post.id === id);
   const [{ description, link, title }] = posts;
   modalHeader.textContent = title;
@@ -153,23 +168,23 @@ const renderDisplayedPost = (state, { modalHeader, modalBody, modalHref }, id) =
   modalHref.setAttribute('href', link);
 };
 
-const render = (state, elements, i18next) => (path, value) => {
+const render = (state, _, i18next) => (path, value) => {
   switch (path) {
     case 'formState':
-      renderState(elements, i18next, value);
+      renderState(i18next, value);
       break;
     case 'error':
-      renderError(state, elements, i18next, value);
+      renderError(state, i18next, value);
       break;
     case 'feeds':
-      renderFeeds(state, elements, i18next);
+      renderFeeds(state, i18next);
       break;
     case 'posts':
     case 'uiState.viewedPostIds':
-      renderPosts(state, elements, i18next);
+      renderPosts(state, i18next);
       break;
     case 'uiState.displayedPost':
-      renderDisplayedPost(state, elements, value);
+      renderDisplayedPost(state, value);
       break;
     default:
       break;

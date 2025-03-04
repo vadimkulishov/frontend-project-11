@@ -5,7 +5,7 @@ import i18next from 'i18next';
 import { uniqueId } from 'lodash';
 import render from './render.js';
 import parse from './rss.js';
-import resources from './locales';
+import resources from './locales/index.js'; // Исправлено: добавлено расширение .js
 
 const addProxy = (url) => {
   const proxyUrl = new URL('/get', 'https://allorigins.hexlet.app');
@@ -16,19 +16,18 @@ const addProxy = (url) => {
 
 const getData = (url) => axios.get(addProxy(url));
 
-const addIds = (posts, feedId) => {
-  posts.forEach((post) => {
-    post.id = uniqueId();
-    post.feedId = feedId;
-  });
-};
+const addIds = (posts, feedId) => posts.map((post) => ({
+  ...post,
+  id: uniqueId(),
+  feedId,
+}));
 
 const handleData = (data, watchedState) => {
   const { feed, posts } = data;
-  feed.id = uniqueId();
-  watchedState.feeds.push(feed);
-  addIds(posts, feed.id);
-  watchedState.posts.push(...posts);
+  const feedWithId = { ...feed, id: uniqueId() }; // Создаем новый объект фида
+  const postsWithIds = addIds(posts, feedWithId.id); // Добавляем ID к постам
+  watchedState.feeds.push(feedWithId);
+  watchedState.posts.push(...postsWithIds);
 };
 
 const updatePosts = (watchedState) => {
@@ -39,8 +38,8 @@ const updatePosts = (watchedState) => {
       const postsWithCurrentId = postsFromState.filter((post) => post.feedId === feed.id);
       const displayedPostLinks = postsWithCurrentId.map((post) => post.link);
       const newPosts = posts.filter((post) => !displayedPostLinks.includes(post.link));
-      addIds(newPosts, feed.id);
-      watchedState.posts.unshift(...newPosts);
+      const newPostsWithIds = addIds(newPosts, feed.id); // Используем addIds для новых постов
+      watchedState.posts.unshift(...newPostsWithIds);
     })
     .catch((error) => {
       console.error(`Error fetching data from feed ${feed.id}:`, error);
