@@ -62,5 +62,5 @@ Jest
 ## Автор
 
 Вадим Кулишов Алексеевич
-[https://github.com/vadimkulishov]GitBub
-[https://t.me/vadimkulishov]Telegram
+[https://github.com/vadimkulishov]
+[https://t.me/vadimkulishov]
